@@ -88,7 +88,7 @@ export default {
 
         <div class="center-area">
             <span class="assignments" :class="{ bold: activeTab === 'assignments' }" @click="goToSubject">
-                Assignments
+                Activitats
             </span>
             <span class="people" :class="{ bold: activeTab === 'people' }" @click="goPeople">
                 Persones

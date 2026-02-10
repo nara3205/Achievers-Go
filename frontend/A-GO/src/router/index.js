@@ -33,52 +33,52 @@ const routes = [
     component: Login
   },
   {
-    path: '/alumne/:id',
+    path: '/student/:id',
     name: 'StudentDashboard',
     component: StudentDashboard,
-    meta: { requiresAuth: true, role: 'alumne' }
+    meta: { requiresAuth: true, role: 'student' }
   },
   {
-    path: '/alumne/:id/subject/:subject',
+    path: '/student/:id/subject/:subject',
     name: 'StudentSubjectsDashboard',
     component: StudentSubjectsDashboard,
-    meta: { requiresAuth: true, role: 'alumne' }
+    meta: { requiresAuth: true, role: 'student' }
   },
   {
-    path: '/alumne/:id/subject/:subject/edit',
+    path: '/student/:id/subject/:subject/edit',
     name: 'StudentSettings',
     component: StudentSettings,
-    meta: { requiresAuth: true, role: 'alumne' }
+    meta: { requiresAuth: true, role: 'student' }
   },
   {
-    path: '/professor/:id',
+    path: '/teacher/:id',
     name: 'TeacherDashboard',
     component: TeacherDashboard,
-    meta: { requiresAuth: true, role: 'professor' }
+    meta: { requiresAuth: true, role: 'teacher' }
   },
   {
-    path: '/professor/:id/subject/:subject',
+    path: '/teacher/:id/subject/:subject',
     name: 'TeacherSubjectsDashboard',
     component: TeacherSubjectsDashboard,
-    meta: { requiresAuth: true, role: 'professor' }
+    meta: { requiresAuth: true, role: 'teacher' }
   },
   {
-    path: '/professor/:id/subject/:subject/edit-assignment/:assignment',
+    path: '/teacher/:id/subject/:subject/edit-assignment/:assignment',
     name: 'TeacherEditAssignment',
     component: TeacherEditAssignment,
-    meta: { requiresAuth: true, role: 'professor' }
+    meta: { requiresAuth: true, role: 'teacher' }
   },
   {
-    path: '/professor/:id/subject/:subject/evaluation/',
+    path: '/teacher/:id/subject/:subject/evaluation/',
     name: 'TeacherEvaluation',
     component: TeacherEvaluation,
-    meta: { requiresAuth: true, role: 'professor' }
+    meta: { requiresAuth: true, role: 'teacher' }
   },
   {
-    path: '/professor/:id/subject/:subject/people',
+    path: '/teacher/:id/subject/:subject/people',
     name: 'TeacherPeople',
     component: TeacherPeople,
-    meta: { requiresAuth: true, role: 'professor' }
+    meta: { requiresAuth: true, role: 'teacher' }
   }
 ]
 

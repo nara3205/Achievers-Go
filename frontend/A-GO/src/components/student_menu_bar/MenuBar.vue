@@ -87,6 +87,14 @@ export default {
                 </div>
             </div>
         </div>
+        <div v-else class="right">
+            <span class="plus" @click="toggleMenu()">⚙</span>
+            <div v-if="showMenu" class="dropdown">
+                <div class="dropdown-item" @click="logout">
+                ➜] Tancar sessió
+                </div>
+            </div>
+        </div>
     </header>
 
     <div v-if="show_clear_bar" class="clear-bar">

@@ -40,6 +40,7 @@ export default {
         const data = await res.json();
         this.subjects = data.subjects || [];
         this.getSubjectsMessage = data.message || "";
+        console.log(this.subjects);
 
       } catch (err) {
         console.error("Error al obtenir subjects:", err);
@@ -87,9 +88,12 @@ export default {
             <span class="label"> </span>
             <span class="value"></span>
           </div>
-          <div v-if="subject.descripcio" class="description">
-            {{ subject.descripcio }}
+          <div v-if="subject.descripcio_subject" class="description">
+            {{ subject.descripcio_subject }}
           </div>
+        </div>
+        <div class="subject-footer">
+            ✏️
         </div>
       </div>
       <div class="add-card" @click="openSubjectForm">
@@ -126,6 +130,7 @@ export default {
 }
 
 .subject-card {
+  position: relative; 
   width: 100%;
   min-height: 220px;
   border-radius: 18px;
@@ -136,6 +141,7 @@ export default {
   overflow: hidden;
 }
 
+
 .subject-header {
   position: relative;
   background: #e6f2ef;
@@ -144,6 +150,13 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.subject-footer {
+  position: absolute;
+  bottom: 10px;
+  right: 12px;
+  font-size: 1.2rem;
 }
 
 .delete-btn {
@@ -208,7 +221,6 @@ export default {
   font-size: 0.8rem;
   color: #555;
   line-height: 1.4;
-  padding-top: 8px;
-  border-top: 1px solid #e0e0e0;
+  padding: 8px;
 }
 </style>

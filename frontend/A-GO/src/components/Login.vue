@@ -35,7 +35,7 @@ export default {
           };
           localStorage.setItem("loggedUser", JSON.stringify(savedUser));
 
-          if (savedUser.tipus === "professor" || savedUser.tipus === "teacher") {
+          if (savedUser.tipus === "teacher" || savedUser.tipus === "teacher") {
 
             return this.$router.push({ name: 'TeacherDashboard', params: { id: String(savedUser.id) } });
           } else {

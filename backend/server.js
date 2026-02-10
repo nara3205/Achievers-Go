@@ -10,7 +10,10 @@ const bcrypt = require('bcrypt');
 // ### EXPRESS CONFIGURATIONS ###
 const app = express();
 const port = 8000;
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // origen autoritzat
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+}));
 app.use(express.json());
 
 // ### DB CONFIGURATION ###
@@ -29,7 +32,7 @@ async function populaDB() {
   let conn;
   try {
     conn = await pool.getConnection();
-    await conn.query("INSERT INTO User (nom, email_niu, tipus, password) VALUES (?, ?, ?, ?)", ["Aran", "aran@example.com", "professor", "12345"]);
+    await conn.query("INSERT INTO Users (nom, email_niu, tipus, password) VALUES (?, ?, ?, ?)", ["Aran", "aran@example.com", "teacher", "12345"]);
     console.log('DB populada!');
   }
   catch (err) {
@@ -47,14 +50,14 @@ async function getOrCreateGrup(groupName, id_subject) {
     conn = await pool.getConnection();
 
     const result = await conn.query(
-      "SELECT id FROM Grup WHERE nom = ? AND id_subject = ?",
+      "SELECT id FROM Groups WHERE nom = ? AND id_subject = ?",
       [groupName, id_subject]
     );
 
     if (result.length > 0) return result[0].id;
 
     const insert = await conn.query(
-      "INSERT INTO Grup (nom, id_subject) VALUES (?, ?)",
+      "INSERT INTO Groups (nom, id_subject) VALUES (?, ?)",
       [groupName, id_subject]
     );
     return insert.insertId;
@@ -73,11 +76,11 @@ async function getOrCreateStudent(student) {
     const hashedPassword = await bcrypt.hash(rawPassword, 10);
 
     const result = await conn.query(
-      "INSERT INTO User (nom, email_niu, tipus, password) VALUES (?, ?, ?, ?)",
+      "INSERT INTO Users (nom, email_niu, tipus, password) VALUES (?, ?, ?, ?)",
       [
         `${student.Nom} ${student.Cognoms}`,
         student['Número ID'],
-        "alumne",
+        "student",
         hashedPassword
       ]
     );
@@ -88,7 +91,7 @@ async function getOrCreateStudent(student) {
   } catch (err) {
     if (err.code === "ER_DUP_ENTRY") {
       const rows = await conn.query(
-        "SELECT id FROM User WHERE email_niu = ?",
+        "SELECT id FROM Users WHERE email_niu = ?",
         [student['Número ID']]
       );
       return rows[0].id;
@@ -104,7 +107,7 @@ async function linkStudentGroup(studentId, groupId) {
   try {
     conn = await pool.getConnection();
     await conn.query(
-      "INSERT INTO student_grup (id_student, id_grup) VALUES (?, ?)",
+      "INSERT INTO Student_group (id_student, id_group) VALUES (?, ?)",
       [studentId, groupId]
     );
   } finally {
@@ -198,8 +201,6 @@ async function createAssignment(assignmentName, assignmentDescription, assignmen
 
 async function updateAssignment(assignmentName, assignmentDescription, assignmentDate, id_subject, assignmentTasks, assignmentInsignia, assignmentSessions, id_assignment) {
 let conn;
-console.log(assignmentName, assignmentDescription, assignmentDate, id_subject, assignmentTasks, assignmentInsignia, assignmentSessions, id_assignment)
-
   try {
     conn = await pool.getConnection();
 
@@ -370,21 +371,21 @@ async function getGroupsbySubject(id_subject) {
 
     const rowsGroups = await conn.query(`
       SELECT 
-        g.id  AS id_grup,
+        g.id  AS id_group,
         g.nom AS nom_grup,
         sgp.id  AS id_subgroup,
         sgp.nom AS nom_subgrup
-      FROM Grup g
-      LEFT JOIN Subgrup sgp ON sgp.id_group = g.id
+      FROM Groups g
+      LEFT JOIN Subgroups sgp ON sgp.id_group = g.id
       WHERE g.id_subject = ?;
     `, [id_subject]);
 
     const groupsMap = {};
 
     for (const row of rowsGroups) {
-      if (!groupsMap[row.id_grup]) {
-        groupsMap[row.id_grup] = {
-          id_grup: row.id_grup,
+      if (!groupsMap[row.id_group]) {
+        groupsMap[row.id_group] = {
+          id_group: row.id_group,
           name: row.nom_grup,
           students: [],
           subgroups: {}
@@ -392,9 +393,9 @@ async function getGroupsbySubject(id_subject) {
       }
 
       if (row.id_subgroup) {
-        if (!groupsMap[row.id_grup].subgroups[row.id_subgroup]) {
-          groupsMap[row.id_grup].subgroups[row.id_subgroup] = {
-            id_group:row.id_grup,
+        if (!groupsMap[row.id_group].subgroups[row.id_subgroup]) {
+          groupsMap[row.id_group].subgroups[row.id_subgroup] = {
+            id_group:row.id_group,
             id_subgroup: row.id_subgroup,
             name: row.nom_subgrup,
             students: []
@@ -405,18 +406,18 @@ async function getGroupsbySubject(id_subject) {
 
     const rowsSubgroupStudents = await conn.query(`
       SELECT
-        sgp.id_group     AS id_grup,
+        sgp.id_group     AS id_group,
         sgs.id_subgroup  AS id_subgroup,
         u.id             AS id_student,
         u.nom            AS nom_student
-      FROM subgrup_student sgs
-      JOIN Subgrup sgp ON sgp.id = sgs.id_subgroup
-      JOIN User u ON u.id = sgs.id_student
-      WHERE u.tipus = 'alumne';
+      FROM Subgroups_student sgs
+      JOIN Subgroups sgp ON sgp.id = sgs.id_subgroup
+      JOIN Users u ON u.id = sgs.id_student
+      WHERE u.tipus = 'student';
     `);
 
     for (const row of rowsSubgroupStudents) {
-      const group = groupsMap[row.id_grup];
+      const group = groupsMap[row.id_group];
       if (!group) continue;
 
       const subgroup = group.subgroups[row.id_subgroup];
@@ -436,16 +437,16 @@ async function getGroupsbySubject(id_subject) {
 
     const rowsGroupStudents = await conn.query(`
       SELECT
-        sg.id_grup,
+        sg.id_group,
         u.id  AS id_student,
         u.nom AS nom_student
-      FROM student_grup sg
-      JOIN User u ON u.id = sg.id_student
-      WHERE u.tipus = 'alumne';
+      FROM Student_group sg
+      JOIN Users u ON u.id = sg.id_student
+      WHERE u.tipus = 'student';
     `);
 
     for (const row of rowsGroupStudents) {
-      const group = groupsMap[row.id_grup];
+      const group = groupsMap[row.id_group];
       if (!group) continue;
 
       const exists = group.students.some(
@@ -481,7 +482,7 @@ async function createOrUpdateSubgrup(id_subgroup, id_group, name, students) {
     if (id_subgroup) {
       await conn.query(
         `
-        UPDATE Subgrup
+        UPDATE Subgroups
         SET id_group = ?, nom = ?
         WHERE id = ?
         `,
@@ -489,7 +490,7 @@ async function createOrUpdateSubgrup(id_subgroup, id_group, name, students) {
       );
       await conn.query(
         `
-        DELETE FROM subgrup_student
+        DELETE FROM Subgroups_student
         WHERE id_subgroup = ?
         `,
         [id_subgroup]
@@ -498,7 +499,7 @@ async function createOrUpdateSubgrup(id_subgroup, id_group, name, students) {
     } else {
       const result = await conn.query(
         `
-        INSERT INTO Subgrup (id_group, nom, avatar_url)
+        INSERT INTO Subgroups (id_group, nom, avatar_url)
         VALUES (?, ?, '/src/img/avatars/1.jpeg')
         `,
         [id_group, name]
@@ -511,7 +512,7 @@ async function createOrUpdateSubgrup(id_subgroup, id_group, name, students) {
       for (const student of students) {
         await conn.query(
           `
-          INSERT INTO subgrup_student (id_subgroup, id_student)
+          INSERT INTO Subgroups_student (id_subgroup, id_student)
           VALUES (?, ?)
           `,
           [finalSubgroupId, student.id_student]
@@ -537,7 +538,7 @@ async function updateSubgrupName(id_subgroup, name) {
     conn = await pool.getConnection();
 
     const result = await conn.query(
-      "UPDATE Subgrup SET nom = ? WHERE id = ?",
+      "UPDATE Subgroups SET nom = ? WHERE id = ?",
       [name, id_subgroup]
     );
     return result;
@@ -555,16 +556,16 @@ async function deleteSubgrup(id_subgroup) {
   try {
     conn = await pool.getConnection();
     await conn.query(
-      "DELETE FROM subgrup_student WHERE id_subgroup = ?",
+      "DELETE FROM Subgroups_student WHERE id_subgroup = ?",
       [id_subgroup]
     );
     await conn.query(
-      "DELETE FROM subgrup_entrega_tasca WHERE id_subgroup = ?",
+      "DELETE FROM Subgroups_task WHERE id_subgroup = ?",
       [id_subgroup]
     );
 
     const result = await conn.query(
-      "DELETE FROM Subgrup WHERE id = ?",
+      "DELETE FROM Subgroups WHERE id = ?",
       [id_subgroup]
     );
     return result;
@@ -590,6 +591,7 @@ async function getAssignmentsAndTasks(id_subject) {
         a.nom AS assignment_name,
         a.data_venciment AS assignment_due_date,
         a.insignia,
+        a.tasques_totals,
         a.descripcio AS descripcio_assignment,
         t.id AS task_id,
         t.nom AS task_name,
@@ -613,6 +615,7 @@ async function getAssignmentsAndTasks(id_subject) {
           data_venciment: row.assignment_due_date,
           insignia: row.insignia,
           descripcio: row.descripcio_assignment,
+          tasques_totals: row.tasques_totals,
           tasks: []
         };
       }
@@ -653,11 +656,11 @@ async function getTaskStatusDict(id_subject) {
         t.id AS id_task,
         s.estat,
         s.comentari
-      FROM Subgrup sg
-      JOIN Grup g ON g.id = sg.id_group
+      FROM Subgroups sg
+      JOIN Groups g ON g.id = sg.id_group
       JOIN Assignment a ON a.id_subject = g.id_subject
       JOIN Task t ON t.id_assignment = a.id
-      LEFT JOIN subgrup_entrega_tasca s
+      LEFT JOIN Subgroups_task s
         ON s.id_subgroup = sg.id AND s.id_task = t.id
       WHERE g.id_subject = ?;
       `,
@@ -693,7 +696,7 @@ async function evaluateTask(id_subgroup, id_task, estat) {
 
     const result = await conn.query(
       `
-      INSERT INTO subgrup_entrega_tasca (id_subgroup, id_task, estat, comentari)
+      INSERT INTO Subgroups_task (id_subgroup, id_task, estat, comentari)
       VALUES (?, ?, ?, ?)
       ON DUPLICATE KEY UPDATE estat = VALUES(estat)
       `,
@@ -717,7 +720,7 @@ async function addCommentTask(id_subgroup, id_task, comentari) {
 
     const result = await conn.query(
       `
-      INSERT INTO subgrup_entrega_tasca (id_subgroup, id_task, estat, comentari)
+      INSERT INTO Subgroups_task (id_subgroup, id_task, estat, comentari)
       VALUES (?, ?, ?, ?)
       ON DUPLICATE KEY UPDATE comentari = VALUES(comentari)
       `,
@@ -746,13 +749,13 @@ async function getSubjectsByStudent(id_student) {
           s.nom        AS nom_subject,
           sg.avatar_url AS avatar,
           s.id_teacher AS id_teacher,
-          g.id         AS id_grup,
+          g.id         AS id_group,
           g.nom        AS nom_grup,
           sg.id        AS id_subgrup,
           sg.nom       AS nom_subgrup
-       FROM subgrup_student ss
-       JOIN Subgrup sg ON ss.id_subgroup = sg.id
-       JOIN Grup g     ON sg.id_group = g.id
+       FROM Subgroups_student ss
+       JOIN Subgroups sg ON ss.id_subgroup = sg.id
+       JOIN Groups g     ON sg.id_group = g.id
        JOIN Subject s  ON g.id_subject = s.id
        WHERE ss.id_student = ?;`,
       [id_student]
@@ -766,7 +769,7 @@ async function getSubjectsByStudent(id_student) {
   }
 }
 
-async function getOverviewStudent(id_student, id_subject, id_teacher, id_grup, id_subgrup ) {
+async function getOverviewStudent(id_student, id_subject, id_teacher, id_group, id_subgrup ) {
   let conn;
 
   try {
@@ -780,11 +783,11 @@ async function getOverviewStudent(id_student, id_subject, id_teacher, id_grup, i
         t.id  AS id_task,
         s.estat, s.comentari,
         t.descripcio
-      FROM Subgrup sg
-      JOIN Grup g ON g.id = sg.id_group
+      FROM Subgroups sg
+      JOIN Groups g ON g.id = sg.id_group
       JOIN Assignment a ON a.id_subject = g.id_subject
       JOIN Task t ON t.id_assignment = a.id
-      LEFT JOIN subgrup_entrega_tasca s
+      LEFT JOIN Subgroups_task s
         ON s.id_subgroup = sg.id 
        AND s.id_task = t.id
       WHERE 
@@ -792,7 +795,7 @@ async function getOverviewStudent(id_student, id_subject, id_teacher, id_grup, i
         AND g.id = ?
         AND sg.id = ?;
       `,
-      [id_subject, id_grup, id_subgrup]
+      [id_subject, id_group, id_subgrup]
     );
    
     const taskStatusDict = {};
@@ -826,7 +829,7 @@ async function editAvatarStudent(id_subgrup, avatar_url) {
 
     const result = await conn.query(
       `
-      UPDATE Subgrup
+      UPDATE Subgroups
       SET avatar_url = ?
       WHERE id = ?
       `,
@@ -860,7 +863,7 @@ app.post('/api/login', async (req, res) => {
     conn = await pool.getConnection();
 
     const rows = await conn.query(
-      "SELECT * FROM User WHERE email_niu = ? AND password = ?",
+      "SELECT * FROM Users WHERE email_niu = ? AND password = ?",
       [email_niu, password]
     );
     if (rows.length > 0)
@@ -1246,15 +1249,15 @@ app.post('/api/student-dashboard', async (req, res) => {
 // ---Endpoint student-subjects---
 //Mounted
 app.post('/api/student-subjects', async (req, res) => {
-  const { id_student, id_subject, id_teacher, id_grup, id_subgrup } = req.body
+  const { id_student, id_subject, id_teacher, id_group, id_subgrup } = req.body
 
-  if (!id_student && !id_subject && !id_teacher && !id_grup && !id_subgrup ) {
+  if (!id_student && !id_subject && !id_teacher && !id_group && !id_subgrup ) {
     return res.status(400).json({
-      message: "No s'ha trobat id_student, id_subject, id_teacher, id_grup, id_subgrup"
+      message: "No s'ha trobat id_student, id_subject, id_teacher, id_group, id_subgrup"
     })
   }
   try {
-    const { taskStatusDict, assignmentsTasks } = await getOverviewStudent(id_student, id_subject, id_teacher, id_grup, id_subgrup )
+    const { taskStatusDict, assignmentsTasks } = await getOverviewStudent(id_student, id_subject, id_teacher, id_group, id_subgrup )
     return res.status(200).json({
       message: 'Overview obtinguts correctament!',
       taskStatusDict,

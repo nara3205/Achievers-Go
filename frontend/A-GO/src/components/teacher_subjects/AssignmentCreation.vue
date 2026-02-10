@@ -101,12 +101,12 @@ export default {
 <template>
   <div class="modal-backdrop">
     <div class="modal">
-      <h2>Crear Assignment</h2>
+      <h2>Crear Activitats</h2>
 
       <form @submit.prevent="addAssignment" class="form">
 
         <div class="field">
-          <label>Nom Assignment*</label>
+          <label>Nom Activitat*</label>
           <input type="text" v-model="assignmentName" required />
         </div>
 

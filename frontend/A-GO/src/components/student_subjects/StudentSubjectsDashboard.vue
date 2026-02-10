@@ -29,7 +29,7 @@ export default {
             id_student: this.user.id,
             id_subject: this.subject.id_subject,
             id_teacher: this.subject.id_teacher,
-            id_grup: this.subject.id_grup,
+            id_group: this.subject.id_group,
             id_subgrup: this.subject.id_subgrup
           }),
         });
@@ -208,7 +208,7 @@ export default {
   padding: 150px 40px 60px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch; /* 👈 default, pero mejor explícito */
 }
 
 .profile {
@@ -256,10 +256,9 @@ export default {
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 40px;
   width: 100%;
-  max-width: 900px;
 }
 
 .card {
@@ -335,10 +334,8 @@ export default {
   color: white;
 
   font-size: 28px;
-  /* 🔥 més petit */
   font-weight: bold;
   line-height: 1;
-  /* 🔥 elimina desplaçament vertical */
 
   display: flex;
   align-items: center;

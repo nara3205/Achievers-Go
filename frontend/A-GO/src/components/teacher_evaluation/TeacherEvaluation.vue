@@ -109,7 +109,7 @@ export default {
           const assignmentInfo = this.assignmentsTasks[assignmentId];
           if (!assignmentInfo) return;
 
-          const totalTasks = assignmentInfo.tasks.length;
+          const totalTasks = assignmentInfo.tasques_totals || assignmentInfo.tasks.length;
           const totalPoints = assignmentInfo.tasks.reduce(
             (sum, t) => sum + t.punts,
             0

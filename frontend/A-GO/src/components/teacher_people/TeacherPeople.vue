@@ -266,7 +266,7 @@ export default {
 
         <input type="text" v-model="searchQuery" placeholder="Cerca estudiant..." class="search-bar" />
 
-        <p class="description">*Estudiants apuntats i no assignats a cap altre grup</p>
+        <p class="description">*Estudiants apuntats al grup</p>
 
         <div class="students-list">
           <div v-for="student in filteredStudents" :key="student.id" class="student-item">

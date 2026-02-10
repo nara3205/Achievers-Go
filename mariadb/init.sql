@@ -1,11 +1,11 @@
 /* =========================
    USER
 ========================= */
-CREATE TABLE User (
+CREATE TABLE Users (
   id INT NOT NULL AUTO_INCREMENT,
   nom VARCHAR(100) NOT NULL,
   email_niu VARCHAR(150) NOT NULL,
-  tipus ENUM('alumne','professor') NOT NULL,
+  tipus ENUM('student','teacher') NOT NULL,
   password VARCHAR(250) NOT NULL,
   PRIMARY KEY (id),
   UNIQUE (email_niu)
@@ -20,9 +20,9 @@ CREATE TABLE Subject (
   descripcio VARCHAR(400) NULL,
   id_teacher INT NOT NULL,
   PRIMARY KEY (id),
-  CONSTRAINT FK_User_TO_Subject
+  CONSTRAINT FK_Users_TO_Subject
     FOREIGN KEY (id_teacher)
-    REFERENCES User(id)
+    REFERENCES Users(id)
     ON DELETE RESTRICT
 );
 
@@ -64,83 +64,83 @@ CREATE TABLE Task (
 );
 
 /* =========================
-   GRUP
+   GROUPS
 ========================= */
-CREATE TABLE Grup (
+CREATE TABLE Groups (
   id INT NOT NULL AUTO_INCREMENT,
   nom VARCHAR(300) NOT NULL,
   id_subject INT NOT NULL,
   PRIMARY KEY (id),
-  CONSTRAINT FK_Subject_TO_Grup
+  CONSTRAINT FK_Subject_TO_Groups
     FOREIGN KEY (id_subject)
     REFERENCES Subject(id)
     ON DELETE CASCADE
 );
 
 /* =========================
-   SUBGRUP
+   SUBGROUPS
 ========================= */
-CREATE TABLE Subgrup (
+CREATE TABLE Subgroups (
   id INT NOT NULL AUTO_INCREMENT,
   nom VARCHAR(300) NOT NULL,
   id_group INT NOT NULL,
   avatar_url VARCHAR(250) NULL,
   punts_totals INT NULL,
   PRIMARY KEY (id),
-  CONSTRAINT FK_Grup_TO_Subgrup
+  CONSTRAINT FK_Groups_TO_Subgroups
     FOREIGN KEY (id_group)
-    REFERENCES Grup(id)
+    REFERENCES Groups(id)
     ON DELETE CASCADE
 );
 
 /* =========================
-   STUDENT ↔ GRUP
+   STUDENT ↔ GROUP
 ========================= */
-CREATE TABLE student_grup (
+CREATE TABLE Student_group (
   id_student INT NOT NULL,
-  id_grup INT NOT NULL,
-  PRIMARY KEY (id_student, id_grup),
-  CONSTRAINT FK_User_TO_student_grup
+  id_group INT NOT NULL,
+  PRIMARY KEY (id_student, id_group),
+  CONSTRAINT FK_Users_TO_student_group
     FOREIGN KEY (id_student)
-    REFERENCES User(id)
+    REFERENCES Users(id)
     ON DELETE CASCADE,
-  CONSTRAINT FK_Grup_TO_student_grup
-    FOREIGN KEY (id_grup)
-    REFERENCES Grup(id)
+  CONSTRAINT FK_Groups_TO_student_group
+    FOREIGN KEY (id_group)
+    REFERENCES Groups(id)
     ON DELETE CASCADE
 );
 
 /* =========================
-   STUDENT ↔ SUBGRUP
+   STUDENT ↔ SUBGROUP
 ========================= */
-CREATE TABLE subgrup_student (
+CREATE TABLE Subgroups_student (
   id_subgroup INT NOT NULL,
   id_student INT NOT NULL,
   PRIMARY KEY (id_subgroup, id_student),
-  CONSTRAINT FK_Subgrup_TO_subgrup_student
+  CONSTRAINT FK_Subgroups_TO_Subgroups_student
     FOREIGN KEY (id_subgroup)
-    REFERENCES Subgrup(id)
+    REFERENCES Subgroups(id)
     ON DELETE CASCADE,
-  CONSTRAINT FK_User_TO_subgrup_student
+  CONSTRAINT FK_Users_TO_Subgroups_student
     FOREIGN KEY (id_student)
-    REFERENCES User(id)
+    REFERENCES Users(id)
     ON DELETE CASCADE
 );
 
 /* =========================
-   ENTREGA TASCA
+   TASK DELIVERY
 ========================= */
-CREATE TABLE subgrup_entrega_tasca (
+CREATE TABLE Subgroups_task (
   id_subgroup INT NOT NULL,
   id_task INT NOT NULL,
   estat ENUM('ontime','offtime','empty') NOT NULL,
   comentari VARCHAR(400) NULL,
   PRIMARY KEY (id_subgroup, id_task),
-  CONSTRAINT FK_Subgrup_TO_entrega
+  CONSTRAINT FK_Subgroups_TO_task
     FOREIGN KEY (id_subgroup)
-    REFERENCES Subgrup(id)
+    REFERENCES Subgroups(id)
     ON DELETE CASCADE,
-  CONSTRAINT FK_Task_TO_entrega
+  CONSTRAINT FK_Task_TO_Subgroups_task
     FOREIGN KEY (id_task)
     REFERENCES Task(id)
     ON DELETE CASCADE

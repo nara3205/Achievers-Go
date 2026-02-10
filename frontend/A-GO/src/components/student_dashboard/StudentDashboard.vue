@@ -109,7 +109,7 @@ export default {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
-  margin-top: 60px;
+  margin-top: 40px;
 }
 
 .subject-card {
