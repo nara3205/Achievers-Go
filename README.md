@@ -14,8 +14,6 @@ Plataforma Web per gestionar l'avenç dels alumnes en una assignatura utilitzant
 - [Prerequisites](#prerequisites)
 - [Setup & Installation](#setup--installation)
 - [Project Architecture](#project-architecture)
-- [Related Files](#related-files)
-
 ---
 
 ## ✨ Features
@@ -212,16 +210,6 @@ A-GO/
 
 ---
 
-## 📝 Related Files
-
-- **Login Component**: `frontend/A-GO/src/components/Login.vue`
-- **Student Dashboard**: `frontend/A-GO/src/components/student_dashboard/StudentDashboard.vue`
-- **Teacher Dashboard**: `frontend/A-GO/src/components/teacher_dashboard/TeacherDashboard.vue`
-- **API Server**: `backend/server.js`
-- **Database Init**: `mariadb/init.sql`
-- **Docker Compose Config**: `docker-compose.yml`
-
----
 
 ## 🔧 Development Tips
 
