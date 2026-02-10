@@ -13,11 +13,8 @@ Plataforma Web per gestionar l'avenç dels alumnes en una assignatura utilitzant
 - [Project Structure](#project-structure)
 - [Prerequisites](#prerequisites)
 - [Setup & Installation](#setup--installation)
-- [Running the Application](#running-the-application)
 - [Project Architecture](#project-architecture)
 - [Related Files](#related-files)
-- [Contributing](#contributing)
-- [License](#license)
 
 ---
 
@@ -185,25 +182,6 @@ A-GO/
    ```bash
    mysql -h localhost -u root -puser user < mariadb/init.sql
    ```
-
----
-
-## 🏃 Running the Application
-
-### Full Stack with Docker
-
-```bash
-docker-compose up
-```
-
-- **Backend API**: Runs on `http://localhost:8000`
-- **Frontend UI**: Runs on `http://localhost:5173`
-- **Database**: Accessible on `localhost:3306`
-- **Hot-reload**: Enabled for both frontend and backend (changes live-reflect in containers)
-
-
-**Access the app**
-   - Open browser to `http://localhost:5173`
 
 ---
 
