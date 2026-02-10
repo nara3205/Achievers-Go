@@ -201,26 +201,8 @@ docker-compose up
 - **Database**: Accessible on `localhost:3306`
 - **Hot-reload**: Enabled for both frontend and backend (changes live-reflect in containers)
 
-### Manual Full Stack Run
 
-1. **Terminal 1 - Backend**
-   ```bash
-   cd backend
-   npm run dev
-   ```
-
-2. **Terminal 2 - Frontend**
-   ```bash
-   cd frontend/A-GO
-   npm run dev
-   ```
-
-3. **Terminal 3 - Database** (if not running)
-   ```bash
-   # Ensure MariaDB is running on localhost:3306
-   ```
-
-4. **Access the app**
+**Access the app**
    - Open browser to `http://localhost:5173`
 
 ---
